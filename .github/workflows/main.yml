@@ -4,7 +4,6 @@ on:
   push:
     branches: 
     - main
-  pull_request:
 
 jobs:
   test-backend: 
@@ -46,7 +45,7 @@ jobs:
           context: ./simple-api
           # Note: tags has to be all lower-case
           tags:  ${{secrets.DOCKER_HUB_USERNAME}}/simple-api:2.0
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: true
 
 
       - name: Build image and push database
@@ -56,8 +55,8 @@ jobs:
         # relative path to the place where source code with Dockerfile is located
           context: ./database
           # Note: tags has to be all lower-case
-          tags:  ${{secrets.DOCKER_HUB_USERNAME}}/tp-docker/database:2.0
-          push: ${{ github.ref == 'refs/heads/main' }}
+          tags:  ${{secrets.DOCKER_HUB_USERNAME}}/database:2.0
+          push: true
 
       - name: Build image and push httpd
         # DO the same for httpd
@@ -66,6 +65,6 @@ jobs:
         # relative path to the place where source code with Dockerfile is located
           context: ./httpd
           # Note: tags has to be all lower-case
-          tags:  ${{secrets.DOCKER_HUB_USERNAME}}/tp-docker/httpd:2.0
-          push: ${{ github.ref == 'refs/heads/main' }}
+          tags:  ${{secrets.DOCKER_HUB_USERNAME}}/httpd:2.0
+          push: true
 
