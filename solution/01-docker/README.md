@@ -1,97 +1,61 @@
-# TP part 01 - Docker
+# tp-docker
 
-## Introduction
-L'objectif de ce TP est de prendre en main l'environnement Docker et plus si affinitée !
+# 1-1 Dockerfile :  
 
-Le but de ce TP est de créer trois conteneurs :
+FROM postgres:14.1-alpine
 
-- Un serveur Web : Apache
-- Un serveur backend avec une API : Java
-- Une base de données : PostgreSQL
-- Un client pour la base de données : adminer (Optionnel)
+ENV POSTGRES_DB=db \
+   POSTGRES_USER=usr \
+   POSTGRES_PASSWORD=pwd
 
+COPY CreateScheme.sql /docker-entrypoint-initdb.d
+COPY InsertData.sql /docker-entrypoint-initdb.d
 
-Les notions suivantes seront abordées : 
+## Commandes : 
 
-- Création d'un image personalisée avec Dockerfile
-- L'exposition des ports d'un container
-- Le mappage des ports d'un container
-- Le mappage de volume pour bénéficier de la persistance
-- L'utilisation d'entrypoint (mis à disposition par l'image)
-- L'utilisation de docker-compose
-- La configuration très basique d'un reverse proxy
+docker build -t <username>/postgredb .
+docker network create app-network
+docker run -p "5432:5432" --network app-network --name database -d postgredb
+docker run -p "8090:8080" --net=app-network --name=adminer -d adminer
 
-## Base de donnée 
+# 1-2
+Cela permet de build et run l'application d'une traite. Si on buildait à part, cela couterait une perte de temps inutile et peut être source d'erreur.
 
-### Build de l'image
+# Explications dockerfile :
 
-On build notre image :
+## Build
+FROM maven:3.8.6-amazoncorretto-17 AS myapp-build   -> image docker maven avec le nom "myapp-build"
+ENV MYAPP_HOME /opt/myapp                           -> Variable d'environnement
+WORKDIR $MYAPP_HOME                                 -> Repertoire de l'application
+COPY pom.xml .                                      -> ajout du pom.xml pour les dépendances maven
+COPY src ./src                                      -> ajout des fichiers sources
+RUN mvn package -DskipTests                         -> build le projet avec maven
 
-```docker
-docker build -t database .
-```
+## Run
+FROM amazoncorretto:17                              -> image docker avec le kit java
+ENV MYAPP_HOME /opt/myapp                           -> Variable env
+WORKDIR $MYAPP_HOME                                 -> Repertoire de l'application
+COPY --from=myapp-build $MYAPP_HOME/target/*.jar $MYAPP_HOME/myapp.jar  
+                                                    -> Récupère les .jar pour faire l'executable
 
-* ```-t database``` : permet de spécifier un tag à l'image 
-* ```.``` : spécifie le contexte
-* ```-f Database.Dockerfile``` : permet de spécifier le nom du Dockerfile si le nom par défaut n'est pas utilisé
+ENTRYPOINT java -jar myapp.jar                      -> lance le .jar
 
-### Lancement d'un conteneur
+# 1-3 Document docker-compose commands
 
-Ensuite on run / exécute notre image :
+## "build"
 
-```docker
-docker run --rm \
-    --name database \
-    --env-file .env \
-    # -p 5432:5432 \  Facultatif -> Utile si on souhaite exposer la BDD, dans notre cas non --> seulement à d'autre conteneur présent sur la même machine --> la solution : utilisé le nom du contenur directement !
-    --network=bridge-app-network \ 
-    database
-```
-Il faut avoir au préalable crée le network -> ```docker network create app-network```
+Cette commande va faire un build de tous les services qui composent notre application
 
-Explication des paramètres :
-* ```--rm``` : effectue un clean-up du container quand il est arrêté.
-  * Càd : Docker supprime automatiquement le container (et tout ce qui est lié à celui-ci) quand il est arrêté et les volumes anonymes associés (équivalent de ```docker rm -v database```).
-  * A noter : Pas utilisé en prod mais pratique pour tester/accomplir quelque chose dans un temps réduit -> tester, compiler une application au sein d'un conteneur, vérifier un bon fonctionnement et libérer de l'espace une fois fini.
-  
-* ```--name``` : permet de nommer le container pour l'identifier, par ex : utiliser son nom pour le lier à d'autres applications.
-* ```-env-file``` : permet de spécifier le fichier qui contient les variables d'environnment.
-  * A noter : on peut aussi spécifier directement des variables d'environement avec ```-e VAR1=TOTO``` (alias de ```-env```) mais cela devient fastidieux si l'on a beaucoup de variables d'environnement.
-* ```-p``` : permet de mapper un ou plusieurs port de la machine hôte avec le conteneur
-* ```-v``` : permet de mapper un ou plusieurs volume de la machine hôte avec le conteneur (pour bénéficier de données persistante -> la base de données ne sera pas vide à chaque redémarrage).
+## "up"
 
+Cette commande va demarrer tous les services, si ils pas dosponible il va faire un build d'abord.
 
-Ajouter adminer (facultatif) : 
-```
-docker run --network=app-network -p 8081:8080 adminer
-```
-## Application Java
+## "images"
 
-## Build de l'image
+Cette commande permet de lister les images qui ont été construite par notre docker-compose
 
-On build notre image :
+## "ps"
 
-```docker
-docker build -t backend .
-```
-On lance le container:
-```
-docker run --network=app-network -p 8080:8080 --name backend_app backend
-```
+Cette commande permet de lister les conteneurs de notre application
 
-## Reverse-Proxy
-
-On fait exactement la même chose que pour les étapes d'avant on build et on run l'image d'un proxy httpd
-puis récuperer sa conf avec la commande suivante:
-```docker exec -it your_running_container cat /usr/local/apache2/conf/httpd.conf > httpd.conf```
-
-# Docker-Compose pour les rassembler tous !
-
-Docker-Compose est un super outil pour configurer/définir/désigner des applications docker avec plusieurs conteneurs.
-Celui-ci est au format YAML.
-
-* Voici la documentation : https://docs.docker.com/compose/
-
-Pour créer et lancer les conteneurs : ```docker-compose up``` et ajouter ```-d``` pour lancer en arrière plan
-
-Pour arrêter et supprimer l'ensemble des éléments (volumes, netorks, containers, images) : ```docker-compose down```
+## "start/stop 'service-name'"
