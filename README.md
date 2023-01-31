@@ -64,3 +64,11 @@ Cette commande permet de lister les conteneurs de notre application
 # 2-1 What are testcontainers?
 
 They simply are java libraries that allow you to run a bunch of docker containers while testing. 
+
+# 2-2 Github Actions
+
+Voir les commentaires dans le fichier main.yml
+
+# 2-3
+
+Pour la configuration de la quality gate, nous avons les settings suivants :
