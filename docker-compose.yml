@@ -25,6 +25,14 @@ services:
     networks:
       - app-network
 
+  frontend:
+    container_name: frontend
+    build: ./devops-front-main
+    ports:
+      - 4200:80
+    networks:
+      - app-network
+
 
 volumes:
   my_db_volume:
