@@ -72,3 +72,10 @@ Voir les commentaires dans le fichier main.yml
 # 2-3
 
 Pour la configuration de la quality gate, nous avons les settings suivants :
+
+Coverage	is less than	80.0%
+Duplicated Lines (%)	is greater than	3.0%
+Maintainability Rating	is worse than	A
+Reliability Rating	is worse than	A
+Security Hotspots Reviewed	is less than	100%
+Security Rating	is worse than	A
