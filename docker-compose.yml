@@ -3,7 +3,7 @@ services:
   backend:
     container_name: backend
     build: ./simple-api
-    restart: always
+    restart: always #on met le restart ici, pour sécuriser le lancement du backend après la BD
     networks:
       - app-network
     depends_on: #pour démarrer après un autre conteneur (limité car database prend trop de temps, l'appli va crash)
@@ -14,7 +14,7 @@ services:
     build: ./database
     networks:
       - app-network
-    env_file:
+    env_file: #fichiers de config
       - database/.env
 
   httpd:
@@ -30,7 +30,7 @@ volumes:
   my_db_volume:
     driver: local
 
-networks:
+networks: #déclaration du network
   app-network:
 
 
