@@ -9,6 +9,15 @@ services:
     depends_on: #pour démarrer après un autre conteneur (limité car database prend trop de temps, l'appli va crash)
       - database
 
+  backend2:
+    container_name: backend2
+    build: ./simple-api
+    restart: always #on met le restart ici, pour sécuriser le lancement du backend après la BD
+    networks:
+      - app-network
+    depends_on: #pour démarrer après un autre conteneur (limité car database prend trop de temps, l'appli va crash)
+      - database
+
   database:
     container_name: database
     build: ./database
