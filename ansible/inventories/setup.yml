@@ -1,0 +1,7 @@
+all: #pour tous les hôtes
+ vars: #variables
+   ansible_user: centos
+   ansible_ssh_private_key_file: /fs03/share/users/malcolm.neerman/home/Documents/DevOps/docker-tp/id_rsa
+ children: #liste des hôtes cibles
+   prod: #environnements
+     hosts: malcolm.neerman.takima.cloud

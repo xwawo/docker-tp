@@ -1,0 +1,6 @@
+- hosts: all #on se référe au groupe all
+  become: yes #devient su
+  gather_facts: false
+  roles: #roles appelés dans roles/<nom>. les tâches exécutées sont dans tasks/main.yml
+    - docker
+
