@@ -1,2 +1,5 @@
----
-# tasks file for roles/network
+- name: Add a container to a network, leaving existing containers connected
+  docker_network:
+    name: network_one
+    driver: bridge
+    state: present

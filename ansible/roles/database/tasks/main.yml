@@ -1,2 +1,6 @@
----
-# tasks file for roles/database
+- name: Run data
+  docker_container:
+    name: database
+    image: xwawo/database:2.0
+    networks:
+      - name: network_one

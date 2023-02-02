@@ -1,2 +1,9 @@
----
-# tasks file for roles/proxy
+- name: Run proxy
+  docker_container:
+    ports:
+      - "8080:8080"
+      - "80:80"
+    name: proxy
+    image: xwawo/httpd:2.0
+    networks:
+      - name: network_one

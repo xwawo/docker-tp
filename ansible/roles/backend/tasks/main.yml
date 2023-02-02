@@ -1,2 +1,6 @@
----
-# tasks file for roles/backend
+- name: Run back
+  docker_container:
+    name: backend
+    image: xwawo/simple-api:2.0    
+    networks:
+      - name: network_one
